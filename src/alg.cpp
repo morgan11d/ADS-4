@@ -24,7 +24,6 @@ int countPairs2(int *arr, int len, int value)
         int left = i + 1;
         int right = len - 1;
         int firstPos = -1;
-        int lastPos = -1;
         
         while (left <= right)
         {
@@ -42,6 +41,7 @@ int countPairs2(int *arr, int len, int value)
         
         if (firstPos != -1)
         {
+            int lastPos = -1;
             left = i + 1;
             right = len - 1;
             while (left <= right)
