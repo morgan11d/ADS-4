@@ -15,7 +15,7 @@ using std::sort;
 using std::chrono::high_resolution_clock;
 using std::chrono::duration;
 
-int countPairs1(const int *arr, int len, int value) {
+int countPairs1(int *arr, int len, int value) {
     int count = 0;
     for (int i = 0; i < len; ++i) {
         for (int j = i + 1; j < len; ++j) {
@@ -27,7 +27,7 @@ int countPairs1(const int *arr, int len, int value) {
     return count;
 }
 
-int countPairs2(const int *arr, int len, int value) {
+int countPairs2(int *arr, int len, int value) {
     int count = 0;
     int left = 0;
     int right = len - 1;
@@ -63,7 +63,7 @@ int countPairs2(const int *arr, int len, int value) {
     return count;
 }
 
-int countPairs3(const int *arr, int len, int value) {
+int countPairs3(int *arr, int len, int value) {
     int count = 0;
 
     for (int i = 0; i < len - 1; ++i) {
@@ -114,8 +114,8 @@ vector<int> generateSortedArray(int size) {
     return arr;
 }
 
-double measureTime(int (*func)(const int*, int, int), const int* arr,
-                   int len, int value) {
+double measureTime(int (*func)(int*, int, int), int* arr, int len,
+                   int value) {
     auto start = high_resolution_clock::now();
     func(arr, len, value);
     auto end = high_resolution_clock::now();
