@@ -31,27 +31,28 @@ int countPairs2(int *arr, int len, int value) {
     int count = 0;
     int left = 0;
     int right = len - 1;
-
+    
     while (left < right) {
         int sum = arr[left] + arr[right];
         if (sum == value) {
-            int leftVal = arr[left];
-            int rightVal = arr[right];
-            int leftCount = 0;
-            int rightCount = 0;
-
-            while (left <= right && arr[left] == leftVal) {
-                ++leftCount;
-                ++left;
-            }
-            while (left <= right && arr[right] == rightVal) {
-                ++rightCount;
-                --right;
-            }
-
-            if (leftVal == rightVal) {
-                count += (leftCount * (leftCount - 1)) / 2;
+            if (arr[left] == arr[right]) {
+                int n = right - left + 1;
+                count += n * (n - 1) / 2;
+                break;
             } else {
+                int leftVal = arr[left];
+                int rightVal = arr[right];
+                int leftCount = 0;
+                int rightCount = 0;
+                
+                while (left <= right && arr[left] == leftVal) {
+                    ++leftCount;
+                    ++left;
+                }
+                while (left <= right && arr[right] == rightVal) {
+                    ++rightCount;
+                    --right;
+                }
                 count += leftCount * rightCount;
             }
         } else if (sum < value) {
@@ -65,28 +66,44 @@ int countPairs2(int *arr, int len, int value) {
 
 int countPairs3(int *arr, int len, int value) {
     int count = 0;
-
-    for (int i = 0; i < len - 1; ++i) {
+    
+    for (int i = 0; i < len; ++i) {
         int target = value - arr[i];
         int left = i + 1;
         int right = len - 1;
-        int firstPos = -1;
-
+        int pos = -1;
+        
         while (left <= right) {
             int mid = left + (right - left) / 2;
             if (arr[mid] == target) {
-                firstPos = mid;
-                right = mid - 1;
+                pos = mid;
+                break;
             } else if (arr[mid] < target) {
                 left = mid + 1;
             } else {
                 right = mid - 1;
             }
         }
-
-        if (firstPos != -1) {
-            int lastPos = firstPos;
-            left = firstPos;
+        
+        if (pos != -1) {
+            int firstPos = pos;
+            int lastPos = pos;
+            
+            left = i + 1;
+            right = pos - 1;
+            while (left <= right) {
+                int mid = left + (right - left) / 2;
+                if (arr[mid] == target) {
+                    firstPos = mid;
+                    right = mid - 1;
+                } else if (arr[mid] < target) {
+                    left = mid + 1;
+                } else {
+                    right = mid - 1;
+                }
+            }
+            
+            left = pos + 1;
             right = len - 1;
             while (left <= right) {
                 int mid = left + (right - left) / 2;
@@ -99,7 +116,9 @@ int countPairs3(int *arr, int len, int value) {
                     right = mid - 1;
                 }
             }
+            
             count += (lastPos - firstPos + 1);
+            i = lastPos;
         }
     }
     return count;
@@ -125,33 +144,33 @@ double measureTime(int (*func)(int*, int, int), int* arr, int len,
 
 int main() {
     srand(42);
-
+    
     vector<int> sizes;
     for (int i = 100; i <= 2000; i += 100) {
         sizes.push_back(i);
     }
-
+    
     ofstream dataFile("timing_data.txt");
     dataFile << "size\ttime1\ttime2\ttime3\n";
-
+    
     cout << "Running benchmarks...\n";
-
+    
     for (int size : sizes) {
         vector<int> arr = generateSortedArray(size);
         int value = arr[size/2] + arr[size/3];
-
+        
         double t1 = measureTime(countPairs1, arr.data(), size, value);
         double t2 = measureTime(countPairs2, arr.data(), size, value);
         double t3 = measureTime(countPairs3, arr.data(), size, value);
-
+        
         dataFile << size << "\t" << t1 << "\t" << t2 << "\t" << t3 << "\n";
-
+        
         cout << "Size: " << size << " - t1: " << t1 << "s, t2: " << t2
              << "s, t3: " << t3 << "s\n";
     }
-
+    
     dataFile.close();
-
+    
     ofstream gnuplotScript("plot.gnu");
     gnuplotScript << "set terminal png size 1024,768\n";
     gnuplotScript << "set output 'Plots/lin.png'\n";
@@ -166,19 +185,19 @@ int main() {
     gnuplotScript << "title 'countPairs2 (O(n))', \\\n";
     gnuplotScript << "     'timing_data.txt' using 1:4 with linespoints ";
     gnuplotScript << "title 'countPairs3 (O(n log n))'\n";
-
+    
     gnuplotScript << "set output 'Plots/log.png'\n";
     gnuplotScript << "set title 'Time Complexity Comparison ";
     gnuplotScript << "(Log-Log Scale)'\n";
     gnuplotScript << "set logscale xy\n";
     gnuplotScript << "replot\n";
     gnuplotScript.close();
-
+    
     if (system("gnuplot plot.gnu") == -1) {
         cout << "Warning: Could not run gnuplot\n";
     }
-
+    
     cout << "\nPlots saved to Plots/lin.png and Plots/log.png\n";
-
+    
     return 0;
 }
